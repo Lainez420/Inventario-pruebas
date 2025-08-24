@@ -20,39 +20,75 @@ export default function ProductsPage() {
     stock: "",
     category: "",
   });
-  //Estado para manejar el despliegue de formulario
   const [open, setOpen] = useState(false);
-  //Estado para manejar el modal de escaner 
   const [scannerOpen, setScannerOpen] = useState(false);
-  //estado para mensaje flotante
   const [message, setMessage] = useState<string | null>(null);
-  // estado para búsqueda
   const [search, setSearch] = useState("");
 
-  // cargar productos
+  // cargar productos con token
   useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data.products));
+    async function loadProducts() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showMessage("⚠️ No has iniciado sesión");
+          return;
+        }
+
+        const res = await fetch("/api/products", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          showMessage("❌ No autorizado o error al cargar productos");
+          return;
+        }
+
+        const data = await res.json();
+        setProducts(data.products || []);
+      } catch (err) {
+        console.error(err);
+        showMessage("❌ Error de conexión con el servidor");
+      }
+    }
+
+    loadProducts();
   }, []);
 
   // guardar producto nuevo
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showMessage("⚠️ No tienes sesión activa");
+        return;
+      }
 
-    if (res.ok) {
-      const { product } = await res.json();
-      setProducts([product, ...products]);
-      setForm({ name: "", code: "", price: "", stock: "", category: "" });
-      setOpen(false);
-      showMessage("✅ Producto creado con éxito");
-    } else {
-      showMessage("❌ Error al guardar producto");
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        const { product } = await res.json();
+        setProducts([product, ...products]);
+        setForm({ name: "", code: "", price: "", stock: "", category: "" });
+        setOpen(false);
+        showMessage("✅ Producto creado con éxito");
+      } else {
+        const data = await res.json();
+        showMessage(data.error || "❌ Error al guardar producto");
+      }
+    } catch (err) {
+      console.error(err);
+      showMessage("❌ Error de conexión");
     }
   }
 
@@ -62,8 +98,8 @@ export default function ProductsPage() {
     setTimeout(() => setMessage(null), 3000);
   }
 
-  // 🔎 lógica para filtrar productos
-  const filteredProducts = products.filter((p) => {
+  // 🔎 lógica para filtrar productos (si no hay productos, devuelve [])
+  const filteredProducts = (products || []).filter((p) => {
     const q = search.toLowerCase();
     return (
       p.name.toLowerCase().includes(q) ||
@@ -87,7 +123,7 @@ export default function ProductsPage() {
         placeholder="Buscar por nombre, código o categoría..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full text-zinc-900  border p-3 rounded-lg mb-4 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full text-zinc-900 border p-3 rounded-lg mb-4 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
 
       {/* botón abrir formulario */}
@@ -223,16 +259,29 @@ export default function ProductsPage() {
         onClose={() => setScannerOpen(false)}
         onScanSuccess={async (code) => {
           try {
-            const res = await fetch(`/api/products?code=${code}`);
+            const token = localStorage.getItem("token");
+            if (!token) {
+              showMessage("⚠️ No has iniciado sesión");
+              return;
+            }
+
+            const res = await fetch(`/api/products?code=${code}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
             const data = await res.json();
 
             if (res.ok && data.product) {
-              // actualizar stock
-              const updateRes = await fetch(`/api/products/${data.product.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ stock: data.product.stock + 1 }),
-              });
+              const updateRes = await fetch(
+                `/api/products/${data.product.id}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ stock: data.product.stock + 1 }),
+                }
+              );
 
               if (updateRes.ok) {
                 const updated = await updateRes.json();
@@ -244,12 +293,9 @@ export default function ProductsPage() {
                 );
               }
             } else {
-              // no existe → prellenar form
               setForm((prev) => ({ ...prev, code }));
               setOpen(true);
-              showMessage(
-                "⚠️ Producto no encontrado, completa el formulario."
-              );
+              showMessage("⚠️ Producto no encontrado, completa el formulario.");
             }
           } catch (err) {
             console.error(err);
@@ -260,5 +306,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
-
