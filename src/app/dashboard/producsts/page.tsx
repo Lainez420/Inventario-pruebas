@@ -31,9 +31,8 @@ export default function ProductsPage() {
   // cargar productos con token
   useEffect(() => {
 
-    if (!token && !isLoading) {
+    if (!!token && !isLoading) {
       router.push("/login"); // 👈 así evitas cargar nada sin auth
-      return;
     }
 
     async function loadProducts() {
@@ -41,7 +40,6 @@ export default function ProductsPage() {
         const res = await apiFetch("/api/products");
         if (!res.ok) {
           showMessage("❌ No autorizado o error al cargar productos");
-          return;
         }
         const data = await res.json();
         setProducts(data.products || []);
