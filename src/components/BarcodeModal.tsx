@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5QrcodeScanner } from "html5-qrcode"; localStorage.removeItem('token')
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;

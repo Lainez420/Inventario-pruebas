@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import BarcodeScannerModal from "@/components/BarcodeModal";
 import { apiFetch } from "@/utils/api";
+import { useRouter } from "next/navigation";
 interface Product {
   id: number;
   name: string;
@@ -12,6 +13,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState({
     name: "",
@@ -27,24 +29,29 @@ export default function ProductsPage() {
 
   // cargar productos con token
   useEffect(() => {
-  async function loadProducts() {
-    try {
-      const res = await apiFetch("/api/products");
-      if (!res.ok) {
-        showMessage("❌ No autorizado o error al cargar productos");
-        return;
-      }
-
-      const data = await res.json();
-      setProducts(data.products || []);
-    } catch (err) {
-      console.error(err);
-      showMessage("❌ Error de conexión con el servidor");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login"); // 👈 así evitas cargar nada sin auth
+      return;
     }
-  }
 
-  loadProducts();
-}, []);
+    async function loadProducts() {
+      try {
+        const res = await apiFetch("/api/products");
+        if (!res.ok) {
+          showMessage("❌ No autorizado o error al cargar productos");
+          return;
+        }
+        const data = await res.json();
+        setProducts(data.products || []);
+      } catch (err) {
+        console.error(err);
+        showMessage("❌ Error de conexión con el servidor");
+      }
+    }
+
+    loadProducts();
+  }, [router]);
 
   // guardar producto nuevo
   async function handleSubmit(e: React.FormEvent) {
