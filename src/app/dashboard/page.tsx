@@ -7,12 +7,12 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 export default function DashboardPage() {
   const router = useRouter();
   const [token, isLoading, setToken] =  useLocalStorage("token")
-  
+
   useEffect(() => {
     if (!token) {
       router.push("/login");
     }
-  }, [router]);
+  }, [router, token]);
 
   return (
     <div>
