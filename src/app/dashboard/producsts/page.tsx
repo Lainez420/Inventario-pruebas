@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import BarcodeScannerModal from "@/components/BarcodeModal";
 import { apiFetch } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 interface Product {
   id: number;
   name: string;
@@ -26,11 +27,11 @@ export default function ProductsPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-
+  const [token, isLoading, setToken] =  useLocalStorage("token")
   // cargar productos con token
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+
+    if (!token && !isLoading) {
       router.push("/login"); // 👈 así evitas cargar nada sin auth
       return;
     }
@@ -51,13 +52,12 @@ export default function ProductsPage() {
     }
 
     loadProducts();
-  }, [router]);
+  }, [router, token, isLoading]);
 
   // guardar producto nuevo
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         showMessage("⚠️ No tienes sesión activa");
         return;

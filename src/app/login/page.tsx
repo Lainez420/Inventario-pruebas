@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [token, isLoading, setToken] =  useLocalStorage("token")
 
     async function handleSubmit(e:React.FormEvent) {
         e.preventDefault();
@@ -18,10 +20,10 @@ export default function LoginPage() {
             body: JSON.stringify({email, password})
         });
 
-        const data = await res.json();
+        const data:{token:string; error:any} = await res.json();
 
         if (res.ok) {
-            localStorage.setItem("token", data.token);
+            setToken(data.token);
             router.push("/dashboard");
         } else {
             setError(data.error || "Error al iniciar sesion");
