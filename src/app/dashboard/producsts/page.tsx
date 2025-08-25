@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import BarcodeScannerModal from "@/components/BarcodeModal";
-
+import { apiFetch } from "@/utils/api";
 interface Product {
   id: number;
   name: string;
@@ -27,35 +27,24 @@ export default function ProductsPage() {
 
   // cargar productos con token
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          showMessage("⚠️ No has iniciado sesión");
-          return;
-        }
-
-        const res = await fetch("/api/products", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          showMessage("❌ No autorizado o error al cargar productos");
-          return;
-        }
-
-        const data = await res.json();
-        setProducts(data.products || []);
-      } catch (err) {
-        console.error(err);
-        showMessage("❌ Error de conexión con el servidor");
+  async function loadProducts() {
+    try {
+      const res = await apiFetch("/api/products");
+      if (!res.ok) {
+        showMessage("❌ No autorizado o error al cargar productos");
+        return;
       }
-    }
 
-    loadProducts();
-  }, []);
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (err) {
+      console.error(err);
+      showMessage("❌ Error de conexión con el servidor");
+    }
+  }
+
+  loadProducts();
+}, []);
 
   // guardar producto nuevo
   async function handleSubmit(e: React.FormEvent) {
@@ -67,12 +56,8 @@ export default function ProductsPage() {
         return;
       }
 
-      const res = await fetch("/api/products", {
+      const res = await apiFetch("/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(form),
       });
 
@@ -98,7 +83,7 @@ export default function ProductsPage() {
     setTimeout(() => setMessage(null), 3000);
   }
 
-  // 🔎 lógica para filtrar productos (si no hay productos, devuelve [])
+  // lógica para filtrar productos (si no hay productos, devuelve [])
   const filteredProducts = (products || []).filter((p) => {
     const q = search.toLowerCase();
     return (

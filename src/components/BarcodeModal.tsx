@@ -17,7 +17,7 @@ export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }: 
 
     const scanner = new Html5QrcodeScanner(
       "barcode-scanner",
-      { fps: 10, qrbox: { width: 250, height: 100} },
+      { fps: 10, qrbox: { width: 250, height: 250} },
       false
     );
 
