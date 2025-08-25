@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
@@ -10,6 +10,10 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [token, isLoading, setToken] =  useLocalStorage("token")
+
+    useEffect(()=> {
+        router.push("/dashboard");
+    }, [token])
 
     async function handleSubmit(e:React.FormEvent) {
         e.preventDefault();
@@ -24,7 +28,7 @@ export default function LoginPage() {
 
         if (res.ok) {
             setToken(data.token);
-            router.push("/dashboard");
+            
         } else {
             setError(data.error || "Error al iniciar sesion");
         }
