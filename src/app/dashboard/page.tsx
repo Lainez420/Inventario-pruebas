@@ -9,10 +9,10 @@ export default function DashboardPage() {
   const [token, isLoading, setToken] =  useLocalStorage("token")
 
   useEffect(() => {
-    if (!token) {
+    if (!!token && !isLoading) {
       router.push("/login");
     }
-  }, [router, token]);
+  }, [token, isLoading]);
 
   return (
     <div>
