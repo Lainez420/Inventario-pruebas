@@ -251,7 +251,6 @@ export default function ProductsPage() {
         onClose={() => setScannerOpen(false)}
         onScanSuccess={async (code) => {
           try {
-            const token = localStorage.getItem("token");
             if (!token) {
               showMessage("⚠️ No has iniciado sesión");
               return;
