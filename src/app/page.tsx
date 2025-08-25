@@ -2,12 +2,13 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function Home() {
   const router = useRouter();
-
+const [token, isLoading, setToken] =  useLocalStorage("token")
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    
     if (token) {
       router.push("/dashboard");
     } else {
