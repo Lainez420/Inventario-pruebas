@@ -50,7 +50,7 @@ export default function ProductsPage() {
     }
 
     loadProducts();
-  }, [router, token, isLoading]);
+  }, [token, isLoading]);
 
   // guardar producto nuevo
   async function handleSubmit(e: React.FormEvent) {
