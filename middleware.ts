@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
-import { BaseLoggger } from "html5-qrcode/esm/core";
 
 export function middleware(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
@@ -9,9 +8,9 @@ export function middleware(req: NextRequest) {
   if (!token) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-
+jwt.verify(token, process.env.JWT_SECRET || "supersecret");
   try {
-    jwt.verify(token, process.env.JWT_SECRET || "supersecret");
+    
     
     return NextResponse.next();
   } catch (error) {
