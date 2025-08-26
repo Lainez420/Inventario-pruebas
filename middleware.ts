@@ -2,16 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
+export const runtime = "nodejs"
+
 export function middleware(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
   console.log(token, process.env)
   if (!token) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-jwt.verify(token, process.env.JWT_SECRET || "supersecret");
+
   try {
-    
-    
+    jwt.verify(token, process.env.JWT_SECRET || "supersecret");
     return NextResponse.next();
   } catch (error) {
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
