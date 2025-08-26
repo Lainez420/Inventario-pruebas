@@ -11,7 +11,6 @@ export function middleware(req: NextRequest) {
 
   try {
     jwt.verify(token, process.env.JWT_SECRET || "supersecret");
-    console.log(token, process.env)
     return NextResponse.next();
   } catch (error) {
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
