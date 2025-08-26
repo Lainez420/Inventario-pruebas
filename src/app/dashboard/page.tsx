@@ -12,7 +12,7 @@ export default function DashboardPage() {
     if (!!token && !isLoading) {
       router.push("/login");
     }
-  }, [token, isLoading]);
+  }, [token, isLoading, router]);
 
   return (
     <div>

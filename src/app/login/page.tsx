@@ -12,10 +12,10 @@ export default function LoginPage() {
     const [token, isLoading, setToken] =  useLocalStorage("token")
 
     useEffect(()=> {
-        if(!!token){
+        if(!!token && !isLoading){
             router.push("/dashboard");
         }
-    }, [token])
+    }, [token, isLoading, router])
 
     async function handleSubmit(e:React.FormEvent) {
         e.preventDefault();
