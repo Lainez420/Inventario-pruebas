@@ -31,7 +31,7 @@ export default function ProductsPage() {
   // cargar productos con token
   useEffect(() => {
 
-    if (!!token && !isLoading) {
+    if (!token && !isLoading) {
       router.push("/login"); // 👈 así evitas cargar nada sin auth
     }
 
