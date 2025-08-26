@@ -151,7 +151,7 @@ export default function ProductsPage() {
             <label className="block text-sm font-medium text-gray-700">
               Código
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Escanéalo o escríbelo"
@@ -162,7 +162,7 @@ export default function ProductsPage() {
               <button
                 type="button"
                 onClick={() => setScannerOpen(true)}
-                className="bg-purple-600 text-white px-4 rounded-md hover:bg-purple-700 transition"
+                className="bg-purple-600 text-white px-4 py-3 rounded-md hover:bg-purple-700 transition w-full sm:w-auto"
               >
                 📷 Escanear
               </button>
